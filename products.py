@@ -60,3 +60,54 @@ class Product:
         total_price = self.price * quantity
         self.set_quantity(self.quantity - quantity)
         return total_price
+
+
+# ==============================
+# New product types
+# ==============================
+
+class NonStockedProduct(Product):
+    """Represents a product with no stock tracking (e.g., software license)."""
+
+    def __init__(self, name: str, price: float):
+        # Always call base class with quantity=0
+        super().__init__(name, price, quantity=0)
+
+    def set_quantity(self, quantity: int):
+        """Non-stocked products always have 0 quantity."""
+        self.quantity = 0
+
+    def buy(self, quantity: int) -> float:
+        """Always allow purchase regardless of stock."""
+        if quantity <= 0:
+            raise ValueError("Purchase quantity must be greater than zero.")
+        return self.price * quantity
+
+    def show(self) -> str:
+        """Return a string representation for non-stocked product."""
+        return f"{self.name}, Price: {self.price}, (Non-stocked)"
+
+
+class LimitedProduct(Product):
+    """Represents a product that can only be purchased up to 'maximum' per order."""
+
+    def __init__(self, name: str, price: float, quantity: int, maximum: int):
+        super().__init__(name, price, quantity)
+        if maximum <= 0:
+            raise ValueError("Maximum must be greater than zero.")
+        self.maximum = maximum
+
+    def buy(self, quantity: int) -> float:
+        """Allow buying only up to 'maximum' per order."""
+        if quantity > self.maximum:
+            raise ValueError(
+                f"Cannot buy more than {self.maximum} units of {self.name} per order."
+            )
+        return super().buy(quantity)
+
+    def show(self) -> str:
+        """Return a string representation for limited product."""
+        return (
+            f"{self.name}, Price: {self.price}, Quantity: {self.quantity}, "
+            f"(Max {self.maximum} per order)"
+        )

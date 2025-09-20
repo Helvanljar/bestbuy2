@@ -1,5 +1,6 @@
 import pytest
 from products import Product, NonStockedProduct, LimitedProduct
+import promotions
 
 
 def test_create_normal_product():
@@ -65,3 +66,29 @@ def test_limited_product_allows_purchase_up_to_maximum():
     total = lp.buy(1)
     assert total == 10
     assert lp.quantity == 49
+
+
+# ===== Tests for Promotions =====
+
+def test_percent_discount_promotion():
+    p = Product("MacBook Air M2", price=100, quantity=10)
+    promo = promotions.PercentDiscount("10% off", percent=10)
+    p.set_promotion(promo)
+    total = p.buy(2)
+    assert total == 180  # 2 * 90
+
+
+def test_second_half_price_promotion():
+    p = Product("Bose", price=100, quantity=10)
+    promo = promotions.SecondHalfPrice("Second Half Price")
+    p.set_promotion(promo)
+    total = p.buy(2)
+    assert total == 150  # 1*100 + 1*50
+
+
+def test_third_one_free_promotion():
+    p = Product("Pixel", price=100, quantity=10)
+    promo = promotions.ThirdOneFree("Third One Free")
+    p.set_promotion(promo)
+    total = p.buy(3)
+    assert total == 200  # 3 for the price of 2
